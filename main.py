@@ -3,11 +3,10 @@ from datetime import datetime
 import csv
 import time
 import os
-chave = '--------------------------------'
+chave = '-------------------------------'
 
 def extrairDados(dicio):
     elementos = dicio['elements'][0]
-    print(elementos['status'], end = " ")
     distancia = elementos['distance']['value']
     duração = elementos['duration_in_traffic']['value']#segundos
     return (distancia,duração)
@@ -37,19 +36,11 @@ def main():
         while(conexao == False):
           try:
             dados_rota = requests.get(requisicao)
+            distancia_tempo= extrairDados(dados_rota.json()['rows'][0])
             conexao = True
           except:
-            print("x", end=" ")
             time.sleep(30)
             conexao = False
-        print(str(horas), end=" ")
-        try:
-            distancia_tempo= extrairDados(dados_rota.json()['rows'][0])
-            print(".", end=" ")
-            
-        except:
-            print("(---ERRO---)", end=" ")
-
         data_e_hora = datetime.now()
         auxiliar += 1
         pasta = data_e_hora.strftime('%d-%m')
@@ -65,13 +56,12 @@ def main():
 
 
 horas = 0
-print('.', end='  ')
-time.sleep(840)
-print('.')
-for i in range(96):
+while(True):
     inicio = time.time()
+    
     data_e_hora = datetime.now()
     pasta = data_e_hora.strftime('%d-%m')
+	print(data_e_hora.strftime('%H:%M'), end = '  ')
     USERS_PATH = './'+pasta+'/'
     if not os.path.exists(USERS_PATH):
         os.makedirs(USERS_PATH)
@@ -82,9 +72,8 @@ for i in range(96):
     tempo_total = fim - inicio
     horas+=1
     if(tempo_total >1800):
-        print("\n----- TEMPO > 1800 -----")
-        time.sleep(1800)
+        tempo = 1800 - (tempo_total%1800)
+        time.sleep(tempo)
     else:
-        print('\n .->\n')
         time.sleep(1800 - tempo_total)
 
